@@ -38,7 +38,7 @@ import { TelegramWelcomeModal } from '@/components/TelegramWelcomeModal';
 import VideoCard from '@/components/VideoCard';
 
 function HomeClient() {
-  const [activeTab, setActiveTab] = useState<'home' | 'continue' | 'favorites'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'favorites'>('home');
   const [hotMovies, setHotMovies] = useState<DoubanItem[]>([]);
   const [hotTvShows, setHotTvShows] = useState<DoubanItem[]>([]);
   const [hotVarietyShows, setHotVarietyShows] = useState<DoubanItem[]>([]);
@@ -507,11 +507,10 @@ function HomeClient() {
           <CapsuleSwitch
             options={[
               { label: '首页', value: 'home' },
-              { label: '继续观看', value: 'continue' },
               { label: '收藏夹', value: 'favorites' },
             ]}
             active={activeTab}
-            onChange={(value) => setActiveTab(value as 'home' | 'continue' | 'favorites')}
+            onChange={(value) => setActiveTab(value as 'home' | 'favorites')}
           />
 
           {/* AI推荐按钮 - 只在功能启用时显示，添加脉冲动画 */}
@@ -597,8 +596,6 @@ function HomeClient() {
                 )}
               </div>
             </section>
-          ) : activeTab === 'continue' ? (
-            <ContinueWatching />
           ) : (
             // 首页视图
             <>
