@@ -27,6 +27,7 @@ import {
 import { getDoubanDetails } from '@/lib/douban.client';
 import { SearchResult } from '@/lib/types';
 import { getVideoResolutionFromM3u8, processImageUrl } from '@/lib/utils';
+import WatchPartyControl from '@/components/WatchPartyControl';
 
 // 扩展 HTMLVideoElement 类型以支持 hls 属性
 declare global {
@@ -4262,6 +4263,8 @@ function PlayPageClient() {
 
                   {/* 按钮组 */}
                   <div className='flex items-center justify-center md:justify-start gap-2 flex-wrap'>
+                    {/* 一起观看控制 */}
+                    <WatchPartyControl />
                     {/* 收藏按钮 */}
                     <button
                       onClick={(e) => {
