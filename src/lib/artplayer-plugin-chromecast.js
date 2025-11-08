@@ -163,9 +163,16 @@ export default function artplayerPluginChromecast(option) {
         option.onCastStart?.()
       })
       .catch((error) => {
-        art.notice.show = 'Error casting media'
+        // 某些环境下断开会返回 Error: disconnected，这里避免未捕获的 Promise 拒绝
+        const msg = (error && error.message) ? error.message : String(error)
+        if (/disconnected/i.test(msg)) {
+          art.notice.show = 'Cast disconnected'
+        } else {
+          art.notice.show = 'Error casting media'
+        }
+        console.warn('[Chromecast] loadMedia error:', error)
         option.onError?.(error)
-        throw error
+        // 不再向上抛出，防止 Uncaught (in promise)
       })
   }
 
