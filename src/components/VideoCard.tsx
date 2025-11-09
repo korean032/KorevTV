@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any,react-hooks/exhaustive-deps,@typescript-eslint/no-empty-function */
 
-import { ExternalLink, Heart, Link, PlayCircleIcon, Radio, Star, Trash2 } from 'lucide-react';
+import { ExternalLink, Heart, Link, PlayCircleIcon, Radio, Star, Trash2, Check, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, {
@@ -13,14 +13,16 @@ import React, {
   useState,
 } from 'react';
 
-import {
-  deleteFavorite,
-  deletePlayRecord,
-  generateStorageKey,
-  isFavorited,
-  saveFavorite,
-  subscribeToDataUpdates,
-} from '@/lib/db.client';
+  import {
+    deleteFavorite,
+    deletePlayRecord,
+    getAllPlayRecords,
+    generateStorageKey,
+    isFavorited,
+    savePlayRecord,
+    saveFavorite,
+    subscribeToDataUpdates,
+  } from '@/lib/db.client';
 import { processImageUrl, isSeriesCompleted } from '@/lib/utils';
 import { useLongPress } from '@/hooks/useLongPress';
 
@@ -310,6 +312,48 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
     },
     [from, actualSource, actualId, onDelete]
   );
+
+  // 标记看完（进度设为100%，索引设为总集数）
+  const handleMarkFinished = useCallback(async () => {
+    if (from !== 'playrecord' || !actualSource || !actualId) return;
+    try {
+      const all = await getAllPlayRecords();
+      const key = generateStorageKey(actualSource, actualId);
+      const record = all[key];
+      if (!record) return;
+      const updated = {
+        ...record,
+        index: record.total_episodes && record.total_episodes > 0 ? record.total_episodes : record.index,
+        play_time: record.total_time && record.total_time > 0 ? record.total_time : record.play_time,
+        save_time: Date.now(),
+      };
+      await savePlayRecord(actualSource, actualId, updated);
+      setShowMobileActions(false);
+    } catch (err) {
+      throw new Error('标记看完失败');
+    }
+  }, [from, actualSource, actualId]);
+
+  // 跳到下一集（索引+1，不超过总集数）
+  const handleJumpNextEpisode = useCallback(async () => {
+    if (from !== 'playrecord' || !actualSource || !actualId) return;
+    try {
+      const all = await getAllPlayRecords();
+      const key = generateStorageKey(actualSource, actualId);
+      const record = all[key];
+      if (!record) return;
+      const nextIndex = Math.min((record.index || 1) + 1, record.total_episodes || (record.index || 1));
+      const updated = {
+        ...record,
+        index: nextIndex,
+        save_time: Date.now(),
+      };
+      await savePlayRecord(actualSource, actualId, updated);
+      setShowMobileActions(false);
+    } catch (err) {
+      throw new Error('跳到下一集失败');
+    }
+  }, [from, actualSource, actualId]);
 
   const handleClick = useCallback(() => {
     // 如果是即将上映的内容，不执行跳转，显示提示
@@ -614,6 +658,24 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
           handleDeleteRecord(mockEvent);
         },
         color: 'danger' as const,
+      });
+
+      // 标记看完
+      actions.push({
+        id: 'mark-finished',
+        label: '标记看完',
+        icon: <Check size={20} />,
+        onClick: () => { handleMarkFinished(); },
+        color: 'primary' as const,
+      });
+
+      // 跳到下一集
+      actions.push({
+        id: 'next-episode',
+        label: '跳到下一集',
+        icon: <ChevronRight size={20} />,
+        onClick: () => { handleJumpNextEpisode(); },
+        color: 'default' as const,
       });
     }
 

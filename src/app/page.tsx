@@ -54,6 +54,7 @@ function HomeClient() {
 
   const [showAnnouncement, setShowAnnouncement] = useState(false);
   const [showAIRecommendModal, setShowAIRecommendModal] = useState(false);
+  const [initialAiMessage, setInitialAiMessage] = useState<string>('');
   const [aiEnabled, setAiEnabled] = useState<boolean | null>(true); // 默认显示，检查后再决定
   const [aiCheckTriggered, setAiCheckTriggered] = useState(false); // 标记是否已检查AI状态
   const [personalRecommendEnabled, setPersonalRecommendEnabled] = useState<boolean>(() => {
@@ -556,7 +557,7 @@ function HomeClient() {
           {/* AI推荐按钮 - 只在功能启用时显示，添加脉冲动画 */}
           {aiEnabled && (
             <button
-              onClick={() => setShowAIRecommendModal(true)}
+              onClick={() => { setInitialAiMessage('请为我推荐近期口碑较好的电影和剧集，包含不同类型的作品。'); setShowAIRecommendModal(true); }}
               className='relative flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full font-medium transition-all transform hover:scale-105 shadow-lg hover:shadow-xl group overflow-hidden'
               title='AI影视推荐'
             >
@@ -776,7 +777,11 @@ function HomeClient() {
                     autoPlayInterval={5000}
                     showControls={true}
                     showIndicators={true}
-                    onRecommend={() => setShowAIRecommendModal(true)}
+                    onRecommend={(title?: string) => {
+                      const seed = (title && title.trim()) ? `请基于我的偏好推荐与“${title}”相关的影视内容，优先同类型与近期高分作品。` : '请为我推荐近期口碑较好的电影和剧集，包含不同类型的作品。';
+                      setInitialAiMessage(seed);
+                      setShowAIRecommendModal(true);
+                    }}
                   />
                 </section>
               )}
@@ -1113,6 +1118,7 @@ function HomeClient() {
       <AIRecommendModal
         isOpen={showAIRecommendModal}
         onClose={() => setShowAIRecommendModal(false)}
+        initialMessage={initialAiMessage}
       />
       {/* 为你推荐 / 最近热播 区块（基于 AIRecommend） */}
       {(aiEnabled === true && aiCheckTriggered && personalRecommendEnabled) && (
@@ -1143,7 +1149,7 @@ function HomeClient() {
               <div className='flex items-center gap-3'>
                 <div className='text-xs text-gray-500 dark:text-gray-400'>数据来源：AI推荐服务（热门趋势）</div>
                 <button
-                  onClick={() => setShowAIRecommendModal(true)}
+                  onClick={() => { setInitialAiMessage('请推荐最近热播且口碑较好的影视作品，优先推荐评分高的剧集与电影。'); setShowAIRecommendModal(true); }}
                   className='text-xs px-3 py-1 rounded-full bg-indigo-600 text白 hover:bg-indigo-700'
                 >
                   查看热门
