@@ -55,6 +55,13 @@ function HomeClient() {
   const [showAIRecommendModal, setShowAIRecommendModal] = useState(false);
   const [aiEnabled, setAiEnabled] = useState<boolean | null>(true); // 默认显示，检查后再决定
   const [aiCheckTriggered, setAiCheckTriggered] = useState(false); // 标记是否已检查AI状态
+  const [personalRecommendEnabled, setPersonalRecommendEnabled] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const v = localStorage.getItem('personalRecommendEnabled');
+      if (v !== null) return v === 'true';
+    }
+    return true;
+  });
 
   // 合并初始化逻辑 - 优化性能，减少重渲染
   useEffect(() => {
@@ -1015,6 +1022,62 @@ function HomeClient() {
         isOpen={showAIRecommendModal}
         onClose={() => setShowAIRecommendModal(false)}
       />
+      {/* 为你推荐 / 最近热播 区块（基于 AIRecommend） */}
+      {aiEnabled && personalRecommendEnabled && (
+        <div className='mt-8 space-y-6'>
+          {/* 为你推荐 */}
+          <div>
+            <div className='mb-3 flex items-center justify-between'>
+              <SectionTitle title='为你推荐' icon={Sparkles} iconColor='text-pink-500' />
+              <div className='flex items-center gap-3'>
+                <div className='text-xs text-gray-500 dark:text-gray-400'>数据来源：AI推荐服务（可在管理后台调整）</div>
+                <button
+                  onClick={() => setShowAIRecommendModal(true)}
+                  className='text-xs px-3 py-1 rounded-full bg-indigo-600 text-white hover:bg-indigo-700'
+                >
+                  打开AI推荐
+                </button>
+              </div>
+            </div>
+            <div className='text-xs text-gray-600 dark:text-gray-300'>
+              根据你的“继续观看”和“收藏”偏好，获取个性化推荐。
+            </div>
+          </div>
+
+          {/* 最近热播 */}
+          <div>
+            <div className='mb-3 flex items-center justify-between'>
+              <SectionTitle title='最近热播' icon={Tv} iconColor='text-red-500' />
+              <div className='flex items-center gap-3'>
+                <div className='text-xs text-gray-500 dark:text-gray-400'>数据来源：AI推荐服务（热门趋势）</div>
+                <button
+                  onClick={() => setShowAIRecommendModal(true)}
+                  className='text-xs px-3 py-1 rounded-full bg-indigo-600 text白 hover:bg-indigo-700'
+                >
+                  查看热门
+                </button>
+              </div>
+            </div>
+            <div className='text-xs text-gray-600 dark:text-gray-300'>
+              快速浏览近期热门影视内容，支持按类型提问。
+            </div>
+          </div>
+
+          {/* 个性化开关 */}
+          <div className='flex items-center justify-end'>
+            <div className='flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300'>
+              <span>个性化推荐</span>
+              <CapsuleSwitch
+                checked={personalRecommendEnabled}
+                onChange={(v: boolean) => {
+                  setPersonalRecommendEnabled(v);
+                  try { localStorage.setItem('personalRecommendEnabled', String(v)); } catch {}
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </PageLayout>
   );
 }
