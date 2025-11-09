@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
 import LiquidGlassContainer from './LiquidGlassContainer';
-import { Users, Copy as CopyIcon, Crown, Wifi, ChevronDown, ChevronUp, QrCode } from 'lucide-react';
+import MobileActionSheet from '@/components/MobileActionSheet';
+import { Users, Copy as CopyIcon, Crown, Wifi, ChevronDown, ChevronUp, QrCode, Plus } from 'lucide-react';
 
 type ChatMsg = { id: string; sender?: string; text: string; ts: number };
 
@@ -26,6 +27,7 @@ export default function WatchPartyPanel() {
   const [showChat, setShowChat] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const initialSyncedRef = useRef<boolean>(false);
+  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     selfIdRef.current = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -279,14 +281,15 @@ export default function WatchPartyPanel() {
         <span className='ml-1 text-xs px-2 py-1 rounded-full bg-white/60 dark:bg-gray-800/40 border border-white/30 dark:border-gray-700/40 text-gray-700 dark:text-gray-200'>
           房间：{room || '未设置'}
         </span>
-        <button onClick={copyInvite} title='复制邀请链接' className='text-xs px-2 py-1 rounded-full bg-gray-700 text-white hover:bg-gray-800 flex items-center gap-1'>
-          <CopyIcon className='w-3 h-3' />复制
-        </button>
-        <button onClick={() => setShowQr(true)} title='显示二维码' className='text-xs px-2 py-1 rounded-full bg-gray-700 text-white hover:bg-gray-800 flex items-center gap-1'>
-          <QrCode className='w-3 h-3' />二维码
-        </button>
-        <button onClick={createRoom} className='text-xs px-2 py-1 rounded-full bg-indigo-600 text-white hover:bg-indigo-700'>生成
-        </button>
+        <div className='hidden md:flex items-center gap-2'>
+          <button onClick={copyInvite} title='复制邀请链接' className='text-xs px-2 py-1 rounded-full bg-gray-700 text-white hover:bg-gray-800 flex items-center gap-1'>
+            <CopyIcon className='w-3 h-3' />复制
+          </button>
+          <button onClick={() => setShowQr(true)} title='显示二维码' className='text-xs px-2 py-1 rounded-full bg-gray-700 text-white hover:bg-gray-800 flex items-center gap-1'>
+            <QrCode className='w-3 h-3' />二维码
+          </button>
+          <button onClick={createRoom} className='text-xs px-2 py-1 rounded-full bg-indigo-600 text-white hover:bg-indigo-700'>生成</button>
+        </div>
 
         {/* 昵称 */}
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder='昵称' className='text-xs px-2 py-1 rounded-md border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-800/60' />
@@ -298,14 +301,19 @@ export default function WatchPartyPanel() {
           <button onClick={disconnect} className='text-xs px-3 py-1 rounded-full bg-red-600 text-white hover:bg-red-700'>离开</button>
         )}
         {connected && (
-          <button onClick={setAsHost} className='text-[10px] px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border border-yellow-600/30 ml-1'>设为主机</button>
+          <button onClick={setAsHost} className='hidden md:inline-block text-[10px] px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border border-yellow-600/30 ml-1'>设为主机</button>
         )}
 
         {/* 跟随主机开关 */}
-        <label className='ml-auto flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300'>
+        <label className='ml-auto hidden md:flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300'>
           <input type='checkbox' checked={followHost} onChange={(e) => setFollowHost(e.target.checked)} />
           跟随主机
         </label>
+
+        {/* 移动端更多 */}
+        <button onClick={() => setShowMore(true)} className='md:hidden text-xs px-2 py-1 rounded-full bg-gray-700 text-white hover:bg-gray-800 flex items-center gap-1'>
+          <Plus className='w-3 h-3' />更多
+        </button>
       </LiquidGlassContainer>
 
       {showQr && (
@@ -331,6 +339,64 @@ export default function WatchPartyPanel() {
           </LiquidGlassContainer>
         </div>
       )}
+
+      {/* 移动端更多菜单抽屉 */}
+      <MobileActionSheet
+        isOpen={showMore}
+        onClose={() => setShowMore(false)}
+        title='更多操作'
+        actions={[
+          {
+            id: 'create',
+            label: '生成房间号',
+            icon: <Plus className='w-4 h-4 text-indigo-600' />,
+            onClick: () => {
+              createRoom();
+              setShowMore(false);
+            }
+          },
+          {
+            id: 'copy',
+            label: '复制邀请',
+            icon: <CopyIcon className='w-4 h-4 text-gray-700' />,
+            onClick: async () => {
+              await copyInvite();
+              setShowMore(false);
+            }
+          },
+          {
+            id: 'qrcode',
+            label: '二维码',
+            icon: <QrCode className='w-4 h-4 text-gray-700' />,
+            onClick: () => {
+              setShowMore(false);
+              setShowQr(true);
+            }
+          },
+          {
+            id: 'follow',
+            label: followHost ? '关闭跟随主机' : '开启跟随主机',
+            icon: <Wifi className='w-4 h-4 text-green-600' />,
+            onClick: () => {
+              setFollowHost((v) => !v);
+              setShowMore(false);
+            }
+          },
+          ...(connected && !createdRoomRef.current
+            ? [
+                {
+                  id: 'host',
+                  label: '设为主机',
+                  icon: <Crown className='w-4 h-4 text-yellow-600' />,
+                  onClick: () => {
+                    setAsHost();
+                    setShowMore(false);
+                  }
+                }
+              ]
+            : [])
+        ]}
+      />
 
       {/* 成员与聊天 */}
       <LiquidGlassContainer className='px-3 py-2' roundedClass='rounded-2xl' intensity='medium' shadow='lg' border='subtle'>
