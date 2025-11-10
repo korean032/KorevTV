@@ -1217,7 +1217,9 @@ function LivePageClient() {
         if (level) {
           setQualityInfo({ height: level.height, bitrate: level.bitrate });
         }
-      } catch {}
+      } catch (e) {
+        console.warn('LEVEL_SWITCHED state update failed:', e);
+      }
       if (process.env.NODE_ENV === 'development') {
         console.log(`Quality switched to level ${data.level}`);
       }

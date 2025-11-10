@@ -34,9 +34,8 @@ export async function POST(req: Request) {
     }
 
     const contentType = resp.headers.get('content-type') || '';
-    let text: string;
     // Always read as text; universal parser can detect JSON by content
-    text = await resp.text();
+    const text = await resp.text();
 
     const parsed = parseUniversalPlaylist(text, url);
     const channels = parsed.channels || [];
