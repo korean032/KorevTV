@@ -24,12 +24,12 @@ export default function LiquidGlassContainer({
 }: LiquidGlassContainerProps) {
   const intensityClasses =
     intensity === 'strong'
-      ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-3xl'
+      ? 'bg-white/60 dark:bg-gray-900/60 backdrop-blur-3xl backdrop-saturate-150'
       : intensity === 'high'
-      ? 'bg-white/70 dark:bg-gray-900/70 backdrop-blur-3xl'
+      ? 'bg-white/50 dark:bg-gray-900/50 backdrop-blur-2xl backdrop-saturate-150'
       : intensity === 'low'
-      ? 'bg-white/30 dark:bg-gray-900/30 backdrop-blur-sm'
-      : 'bg-white/50 dark:bg-gray-900/50 backdrop-blur-lg';
+      ? 'bg-white/20 dark:bg-gray-900/20 backdrop-blur-sm backdrop-saturate-150'
+      : 'bg-white/35 dark:bg-gray-900/35 backdrop-blur-lg backdrop-saturate-150';
 
   const borderClasses =
     border === 'subtle'

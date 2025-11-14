@@ -325,8 +325,11 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
       const url = `/live?source=${actualSource.replace('live_', '')}&id=${actualId.replace('live_', '')}`;
       router.push(url);
     } else if (from === 'douban' || (isAggregate && !actualSource && !actualId)) {
-      const url = `/play?title=${encodeURIComponent(actualTitle.trim())}${actualYear ? `&year=${actualYear}` : ''
-        }${doubanIdParam}${actualSearchType ? `&stype=${actualSearchType}` : ''}${isAggregate ? '&prefer=true' : ''}${actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ''}`;
+      const baseTitle = encodeURIComponent(actualTitle.trim());
+      const st = encodeURIComponent((actualQuery || actualTitle).trim());
+      const yearParam = isBangumi ? '' : (actualYear ? `&year=${actualYear}` : '');
+      const typeParam = isBangumi ? '' : (actualSearchType ? `&stype=${actualSearchType}` : '');
+      const url = `/play?title=${baseTitle}${yearParam}${doubanIdParam}${typeParam}${isAggregate ? '&prefer=true' : ''}&stitle=${st}`;
       router.push(url);
     } else if (actualSource && actualId) {
       const url = `/play?source=${actualSource}&id=${actualId}&title=${encodeURIComponent(
@@ -361,7 +364,11 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
       const url = `/live?source=${actualSource.replace('live_', '')}&id=${actualId.replace('live_', '')}`;
       window.open(url, '_blank');
     } else if (from === 'douban' || (isAggregate && !actualSource && !actualId)) {
-      const url = `/play?title=${encodeURIComponent(actualTitle.trim())}${actualYear ? `&year=${actualYear}` : ''}${doubanIdParam}${actualSearchType ? `&stype=${actualSearchType}` : ''}${isAggregate ? '&prefer=true' : ''}${actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ''}`;
+      const baseTitle = encodeURIComponent(actualTitle.trim());
+      const st = encodeURIComponent((actualQuery || actualTitle).trim());
+      const yearParam = isBangumi ? '' : (actualYear ? `&year=${actualYear}` : '');
+      const typeParam = isBangumi ? '' : (actualSearchType ? `&stype=${actualSearchType}` : '');
+      const url = `/play?title=${baseTitle}${yearParam}${doubanIdParam}${typeParam}${isAggregate ? '&prefer=true' : ''}&stitle=${st}`;
       window.open(url, '_blank');
     } else if (actualSource && actualId) {
       const url = `/play?source=${actualSource}&id=${actualId}&title=${encodeURIComponent(
