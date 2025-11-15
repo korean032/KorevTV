@@ -1799,10 +1799,7 @@ function PlayPageClient() {
         setSourceSearchLoading(false);
       }
     };
-    const fetchSourcesData = async (
-      query: string,
-      strict = true
-    ): Promise<SearchResult[]> => {
+    const fetchSourcesData = async (query: string): Promise<SearchResult[]> => {
       // 使用智能搜索变体获取全部源信息
       try {
         console.log('开始智能搜索，原始查询:', query);
@@ -1850,20 +1847,13 @@ function PlayPageClient() {
                   // 通用关键词匹配：检查是否包含查询中的所有关键词
                   checkAllKeywordsMatch(queryTitle, resultTitle);
 
-                const yearMatch = strict
-                  ? (() => {
-                      const qy =
-                        (videoYearRef.current || '').match(/\d{4}/)?.[0] || '';
-                      if (!qy) return true;
-                      const ry = (result.year || '').match(/\d{4}/)?.[0] || '';
-                      return ry === qy;
-                    })()
+                const yearMatch = videoYearRef.current
+                  ? result.year.toLowerCase() ===
+                    videoYearRef.current.toLowerCase()
                   : true;
-                const typeMatch = strict
-                  ? searchType
-                    ? (searchType === 'tv' && result.episodes.length > 1) ||
-                      (searchType === 'movie' && result.episodes.length === 1)
-                    : true
+                const typeMatch = searchType
+                  ? (searchType === 'tv' && result.episodes.length > 1) ||
+                    (searchType === 'movie' && result.episodes.length === 1)
                   : true;
 
                 return titleMatch && yearMatch && typeMatch;
@@ -2057,7 +2047,7 @@ function PlayPageClient() {
         sourcesInfo = await fetchSourceDetail(currentSource, currentId);
       } else {
         // 其他情况先搜索
-        sourcesInfo = await fetchSourcesData(searchTitle || videoTitle, true);
+        sourcesInfo = await fetchSourcesData(searchTitle || videoTitle);
         if (
           currentSource &&
           currentId &&
@@ -2070,47 +2060,9 @@ function PlayPageClient() {
         }
       }
       if (sourcesInfo.length === 0) {
-        let fallbackResults: SearchResult[] = [];
-        // 宽松匹配原始标题或搜索标题
-        fallbackResults = await fetchSourcesData(
-          searchTitle || videoTitleRef.current,
-          false
-        );
-        // 豆瓣ID存在时，尝试豆瓣详情与别名
-        if (
-          fallbackResults.length === 0 &&
-          videoDoubanIdRef.current &&
-          videoDoubanIdRef.current > 0
-        ) {
-          try {
-            const resp = await fetch(
-              `/api/douban/details?id=${videoDoubanIdRef.current}`
-            );
-            if (resp.ok) {
-              const dd = await resp.json();
-              const names: string[] = [];
-              const data = dd?.data || {};
-              if (data?.title) names.push(String(data.title));
-              if (Array.isArray(data?.aka))
-                names.push(...(data.aka as string[]));
-              for (const name of names) {
-                const r = await fetchSourcesData(name, false);
-                if (r.length > 0) {
-                  fallbackResults = r;
-                  break;
-                }
-              }
-            }
-          } catch (_) {
-            void 0;
-          }
-        }
-        if (fallbackResults.length === 0) {
-          setError('未找到匹配结果');
-          setLoading(false);
-          return;
-        }
-        sourcesInfo = fallbackResults;
+        setError('未找到匹配结果');
+        setLoading(false);
+        return;
       }
 
       let detailData: SearchResult = sourcesInfo[0];
