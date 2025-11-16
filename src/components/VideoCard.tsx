@@ -1233,8 +1233,8 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
               WebkitTouchCallout: 'none',
             } as React.CSSProperties}
           >
-            {/* 背景高亮效果 */}
-            <div className='absolute inset-0 bg-gradient-to-r from-transparent via-green-50/0 to-transparent dark:via-green-900/0 group-hover:via-green-50/50 dark:group-hover:via-green-900/30 transition-all duration-300 rounded-md'></div>
+            {/* 背景高亮效果（窄扫光） */}
+            <span className='scan-sweep rounded-md'></span>
 
             <LiquidGlassContainer
               className='peer inline-block w-full px-2 py-1'
@@ -1318,8 +1318,8 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
                   return false;
                 }}
               >
-                {/* 背景渐变效果 */}
-                <span className='absolute inset-0 bg-gradient-to-r from-transparent via-green-50/0 to-transparent dark:via-green-500/0 group-hover:via-green-50/80 dark:group-hover:via-green-500/20 transition-all duration-300'></span>
+                {/* 背景扫光效果（窄扫光） */}
+                <span className='scan-sweep'></span>
 
                 {/* 左侧装饰点 */}
                 <span className='relative w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 group-hover:bg-green-500 dark:group-hover:bg-green-400 transition-all duration-300 group-hover:shadow-[0_0_8px_rgba(16,185,129,0.6)]'></span>
