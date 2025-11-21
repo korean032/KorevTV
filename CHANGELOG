@@ -2,17 +2,18 @@
 
 ### Added
 
-- 🌟 导航激活链接呼吸辉光效果：桌面底部浮动导航在激活时显示柔和渐变辉光
+- 🌟 导航激活链接呼吸辉光：桌面底部浮动导航的激活项新增柔和渐变辉光动画
 - 📏 CapsuleSwitch 指示器响应式：使用 ResizeObserver 自适应计算指示器位置与宽度
 
 ### Changed
 
-- ♿ 无障碍增强：CapsuleSwitch 支持键盘导航（←/→、Home/End），补充 ARIA 角色
-- 🎞️ 动效合规：遵循系统“减少动效”偏好，相关动画在该模式下自动禁用
+- ♿ CapsuleSwitch 无障碍增强：支持键盘导航（←/→、Home/End），补充 ARIA 角色
+- 🎞️ 动效合规：遵循系统“减少动效”偏好，自动禁用相关动画
+- 📝 文档更新：README 星标历史链接改为 `Korean032/KorevTV`
 
 ### Fixed
 
-- 🧹 ESLint 钩子阻塞问题：清理空代码块与未使用变量，避免 pre-commit 阻塞
+- 🧹 ESLint 预提交阻塞：清理空代码块与未使用变量，避免 pre-commit 阻塞
 
 ---
 
